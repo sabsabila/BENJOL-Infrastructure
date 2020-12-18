@@ -1,0 +1,67 @@
+version: '3'
+
+services:
+
+    # PHP Services
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: digitalocan.com/php
+        container_name: benjol-app
+        restart: unless-stopped
+        tty: true
+        environment:
+            SERVICE_NAME: app
+            SERVICE_TAGS: dev
+        working_dir: /var/www
+        volumes:
+            - ./src:/var/www
+            - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - benjol-network
+             
+    # Nginx Service	
+    nginx:
+        image: nginx:alpine
+        container_name: benjol-webserver-nginx
+        restart: unless-stopped
+        tty: true
+        ports: 
+            - "80:80"
+        volumes: 
+            - ./src:/var/www/
+            - ./nginx/conf.d/:/etc/nginx/conf.d/
+        networks: 
+            - benjol-network
+    
+    # Database Service
+    mariadb:
+        image: mariadb:latest
+        container_name: benjol-database-mariadb
+        restart: unless-stopped
+        tty: true
+        ports: 
+            - "3306:3306"
+        environment: 
+            MYSQL_DATABASE: benjol
+            MYSQL_USER: benjol
+            MYSQL_PASSWORD: benjol
+            MYSQL_ROOT_PASSWORD: root
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mariadb
+        volumes:
+            - benjol-data:/var/lib/mysql
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
+        networks: 
+            - benjol-network
+
+# Docker Networks
+networks:
+        benjol-network:
+            driver: bridge
+
+# Volumes
+volumes:
+        benjol-data:
+            driver: local
