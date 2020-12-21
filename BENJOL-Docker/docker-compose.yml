@@ -1,53 +1,53 @@
-version: '3'
+version: '3.8'
 
 services:
-
-    # PHP Services
-    app:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        image: digitalocan.com/php
-        container_name: benjol-app
+    # Router
+    router:
+        image: aabdulsalams/benjol-router:1.0.0
+        container_name: benjol-router
         restart: unless-stopped
         tty: true
-        environment:
-            SERVICE_NAME: app
-            SERVICE_TAGS: dev
-        working_dir: /var/www
-        volumes:
-            - ./src:/var/www
-            - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        ports:
+            - "80:80"
+            - "443:443"
         networks:
             - benjol-network
-             
-    # Nginx Service	
-    nginx:
-        image: nginx:alpine
-        container_name: benjol-webserver-nginx
+    
+    # Backend Services
+    backend-app:
+        image: aabdulsalams/benjol-backend:1.0.0
+        container_name: benjol-backend
         restart: unless-stopped
         tty: true
-        ports: 
-            - "80:80"
-        volumes: 
-            - ./src:/var/www/
-            - ./nginx/conf.d/:/etc/nginx/conf.d/
+        volumes:
+            - ./upload:/www/public/upload
+        networks:
+            - benjol-network
+        depends_on: 
+            - database-mariadb
+       
+    # Web Service	
+    web-app:
+        image: aabdulsalams/benjol-web:1.0.0
+        container_name: benjol-web
+        restart: unless-stopped
+        tty: true
         networks: 
             - benjol-network
     
     # Database Service
-    mariadb:
+    database-mariadb:
         image: mariadb:latest
-        container_name: benjol-database-mariadb
+        container_name: benjol-database
         restart: unless-stopped
         tty: true
         ports: 
             - "3306:3306"
         environment: 
-            MYSQL_DATABASE: ${DB_DATABASE}
-            MYSQL_USER: ${DB_USER}
-            MYSQL_PASSWORD: ${DB_PASSWORD}
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD_ROOT}
+            MYSQL_DATABASE: 
+            MYSQL_USER: 
+            MYSQL_PASSWORD: 
+            MYSQL_ROOT_PASSWORD: 
             SERVICE_TAGS: dev
             SERVICE_NAME: mariadb
         volumes:
