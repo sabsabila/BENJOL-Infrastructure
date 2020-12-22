@@ -1,0 +1,65 @@
+version: '3.3'
+
+services:
+    # Router
+    router:
+        image: aabdulsalams/benjol-router:1.0.0
+        container_name: benjol-router
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - benjol-network
+    
+    # Backend Services
+    backend-app:
+        image: aabdulsalams/benjol-backend:1.0.0
+        container_name: benjol-backend
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./upload:/www/public/upload
+        networks:
+            - benjol-network
+             
+    # Web Service	
+    web-app:
+        image: aabdulsalams/benjol-web:1.0.0
+        container_name: benjol-web
+        restart: unless-stopped
+        tty: true
+        networks: 
+            - benjol-network
+    
+    # Database Service
+    mariadb:
+        image: mariadb:latest
+        container_name: benjol-database
+        restart: unless-stopped
+        tty: true
+        ports: 
+            - "3306:3306"
+        environment: 
+            MYSQL_DATABASE: benjol
+            MYSQL_USER: benjol
+            MYSQL_PASSWORD: benjol
+            MYSQL_ROOT_PASSWORD: root
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mariadb
+        volumes:
+            - benjol-data:/var/lib/mysql
+            - ./mysql/my.cnf:/etc/mysql/my.cnf
+        networks: 
+            - benjol-network
+
+# Docker Networks
+networks:
+        benjol-network:
+            driver: bridge
+
+# Volumes
+volumes:
+        benjol-data:
+            driver: local

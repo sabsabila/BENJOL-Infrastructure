@@ -1,0 +1,6 @@
+---
+- name : Start ansible
+  hosts : all
+  roles : 
+    - initialize-droplet
+    - initialize-app
