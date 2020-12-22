@@ -1,0 +1,27 @@
+- name : Create upload directory for backend
+  file:
+    path: /home/benjol/upload
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+    mode: 0775
+
+- name: Copy docker compose file
+  copy:
+    src: docker-compose.yml
+    dest: /home/benjol/docker-compose.yml
+
+- name : Create mysql directory for backend
+  file:
+    path: /home/benjol/mysql
+    state: directory
+
+- name: Copy mysql
+  copy:
+    src: mysql/my.cnf
+    dest: /home/benjol/mysql/my.cnf
+
+- name: Run compose up for app
+  docker_compose : 
+    project_src: /home/benjol
