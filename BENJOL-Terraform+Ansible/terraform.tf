@@ -70,7 +70,7 @@ resource "digitalocean_domain" "default" {
     name = "benjol.bike"
 }
 
-resource "digitalocean_record" "all" {
+resource "digitalocean_record" "www" {
     domain = digitalocean_domain.default.name
     type   = "A"
     name   = "@"
@@ -97,7 +97,7 @@ resource "null_resource" "ansible-provision" {
 
 }
 
-output the load balancer ip
+# output the load balancer ip
 output "ip_lb" {
   value = digitalocean_loadbalancer.benjol-lb.ip
 }
