@@ -3,7 +3,7 @@ version: '3.8'
 services:
     # Router
     router:
-        image: aabdulsalams/benjol-router:1.0.0
+        image: aabdulsalams/benjol-router:latest
         container_name: benjol-router
         restart: unless-stopped
         tty: true
@@ -12,15 +12,18 @@ services:
             - "443:443"
         networks:
             - benjol-network
-    
+        depends_on:
+            - backend-app
+            - web-app
+
     # Backend Services
     backend-app:
-        image: aabdulsalams/benjol-backend:1.0.0
+        image: aabdulsalams/benjol-backend:latest
         container_name: benjol-backend
         restart: unless-stopped
         tty: true
-        volumes:
-            - ./upload:/www/public/upload
+        env_file: 
+            - ./environment/.env
         networks:
             - benjol-network
         depends_on: 
@@ -28,7 +31,7 @@ services:
        
     # Web Service	
     web-app:
-        image: aabdulsalams/benjol-web:1.0.0
+        image: aabdulsalams/benjol-web:latest
         container_name: benjol-web
         restart: unless-stopped
         tty: true
@@ -52,7 +55,6 @@ services:
             SERVICE_NAME: mariadb
         volumes:
             - benjol-data:/var/lib/mysql
-            - ./mysql/my.cnf:/etc/mysql/my.cnf
         networks: 
             - benjol-network
 
